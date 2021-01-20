@@ -115,6 +115,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ServerSource.cpp" />
+    <ClCompile Include="WorkerHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WorkerHelper.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.vcxproj">
+      <Project>{89140803-829f-4fea-b8f9-2413f1de6451}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

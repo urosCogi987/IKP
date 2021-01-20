@@ -1,0 +1,5 @@
+﻿  Matrix.cpp
+c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\common\matrix.cpp(6): warning C4101: 'i': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\common\matrix.cpp(35): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\common\matrix.cpp(27): warning C4101: 'i': unreferenced local variable
+  Common.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKPProj\IKP_matrix\Debug\Common.lib

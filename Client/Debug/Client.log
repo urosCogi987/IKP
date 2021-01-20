@@ -1,0 +1,5 @@
+﻿  ClientSource.cpp
+c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\client\clientsource.cpp(104): warning C4477: 'scanf' : format string '%d' requires an argument of type 'int *', but variadic argument 1 has type 'short *'
+  c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\client\clientsource.cpp(104): note: consider using '%hd' in the format string
+c:\users\korisnik\postman\desktop\ikpproj\ikp_matrix\client\clientsource.cpp(8): warning C4101: 'dataBuffer': unreferenced local variable
+  Client.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKPProj\IKP_matrix\Debug\Client.exe
