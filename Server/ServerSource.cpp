@@ -29,6 +29,7 @@ int main()
 
 
 	studentInfo *student;
+	Matrix* matrica;
 
 	while (true)
 	{
@@ -47,7 +48,8 @@ int main()
 		}
 
 		// wait for events on set
-		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);
+		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);	/* NAPRAVI ZASTITU OD 
+																		PREVISE KLIJENATA */
 
 		if (selectResult == SOCKET_ERROR)
 		{
@@ -57,12 +59,7 @@ int main()
 			return 1;
 		}
 		else if (selectResult == 0) // timeout expired
-		{
-			//if (_kbhit()) //check if some key is pressed
-			//{
-			//	getch();
-			//	printf("Primena racunarskih mreza u infrstrukturnim sistemima 2019/2020\n");
-			//}
+		{			
 			continue;
 		}
 		else if (FD_ISSET(listenSocket, &readfds))
@@ -70,9 +67,16 @@ int main()
 			// Struct for information about connected client
 			sockaddr_in clientAddr;
 			int clientAddrSize = sizeof(struct sockaddr_in);
-
-			// New connection request is received. Add new socket in array on first free position.
-			clientSockets[lastIndex] = accept(listenSocket, (struct sockaddr *)&clientAddr, &clientAddrSize);
+			
+			// Accept new client connection
+			if (!AcceptSockets(&clientSockets[lastIndex], &listenSocket, &clientAddr, &clientAddrSize))
+			{
+				closesocket(listenSocket);
+				WSACleanup();
+				printf("Crashed in Recevier thread\n");
+				return 1;
+			}			
+						
 
 			if (clientSockets[lastIndex] == INVALID_SOCKET)
 			{
@@ -94,7 +98,6 @@ int main()
 				}
 				lastIndex++;
 				printf("New client request accepted (%d). Client address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-
 			}
 		}
 		else
@@ -115,19 +118,23 @@ int main()
 
 						//primljenoj poruci u memoriji pristupiti preko pokazivaca tipa (studentInfo *)
 						//jer znamo format u kom je poruka poslata a to je struct studentInfo
-						student = (studentInfo *)dataBuffer;
+						matrica = (Matrix*)dataBuffer;
 
-						printf("Ime i prezime: %s %s  \n", student->ime, student->prezime);
+						for (int i = 0; i < matrica->order * matrica->order; i++)
+						{
+							printf("%d ", matrica->data[i]);
+						}
+						/*printf("Ime i prezime: %s %s  \n", student->ime, student->prezime);
 
-						printf("Poeni studenta: %d  \n", ntohs(student->poeni));
-						printf("_______________________________  \n");
+						printf("Poeni studenta: %d  \n", ntohs(student->poeni));*/
+						printf("\n_______________________________  \n");
 
 
 					}
 					else if (iResult == 0)
 					{
 						// connection was closed gracefully
-						printf("Connection with client (%d) closed.\n", i + 1);
+						printf("Connection with client (%d) closed.\n\n", i + 1);
 						closesocket(clientSockets[i]);
 
 						// sort array and clean last place

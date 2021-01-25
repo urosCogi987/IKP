@@ -73,6 +73,50 @@ void shutdownClientConnection(SOCKET* connectSocket)
 	WSACleanup();
 }
 
+// Send Matrix
+bool SendMatrix(SOCKET socket, Matrix m, int length)
+{
+	int iResult, bytesSent = 0;
+
+	timeval timeVal;
+	timeVal.tv_sec = 1;
+	timeVal.tv_usec = 0;
+
+	fd_set writeFds;
+	do {
+		FD_ZERO(&writeFds);
+		FD_SET(socket, &writeFds);
+
+		iResult = select(0, NULL, &writeFds, NULL, &timeVal);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("Select failed with error: %d\n", WSAGetLastError());
+			closesocket(socket);
+			WSACleanup();
+			return false;
+		}
+		else if (iResult == 0) {
+			printf("time out expired.\n");
+		}
+		else if (FD_ISSET(socket, &writeFds))
+		{			
+			iResult = send(socket, (char*)&m, (int)sizeof(Matrix), 0);
+			if (iResult == SOCKET_ERROR)
+			{
+				printf("send failed with error: %d\n", WSAGetLastError());
+				closesocket(socket);
+				WSACleanup();
+				return false;
+			}
+
+			bytesSent += iResult;
+		}
+	} while (bytesSent < length);	
+
+	return true;
+}
+
 bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 {
 	int iResult;
@@ -151,6 +195,57 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	}
 
 	printf("Server socket is set to listening mode. Waiting for new connection requests.\n");
+
+	return true;
+}
+
+// Accept client connections
+bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clientAddr, int *clientAddrSize)
+{	
+	do {
+		fd_set readfds;
+		FD_ZERO(&readfds);
+
+		timeval timeVal;
+		timeVal.tv_sec = 1;
+		timeVal.tv_usec = 0;
+
+		FD_SET(*listenSocket, &readfds);
+
+		int result = select(0, &readfds, NULL, NULL, &timeVal);
+		if (result == 0)
+		{
+			// vreme za cekanje je isteklo
+		}
+		else if (result == SOCKET_ERROR)
+		{
+			//desila se greska prilikom poziva funkcije
+		}
+		else
+		{
+			if (FD_ISSET(*listenSocket, &readfds))
+			{	
+				// New connection request is received. Add new socket in array on first free position.
+				*clientSocket = accept(*listenSocket, (struct sockaddr *)clientAddr, clientAddrSize);
+
+				if (*clientSocket == INVALID_SOCKET) {
+					printf("accept failed with error: %d\n", WSAGetLastError());
+					closesocket(*listenSocket);
+					WSACleanup();
+					return false;
+
+				}
+
+				unsigned long  mode = 1;
+				if (ioctlsocket(*clientSocket, FIONBIO, &mode) != 0)
+					printf("ioctlsocket failed with error.");
+
+				printf("Connection accepted\n");
+				return true;
+			}
+		}
+	} while (1);
+	
 
 	return true;
 }

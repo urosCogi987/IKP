@@ -32,7 +32,7 @@
 
 
 // server
-#define MAX_CLIENTS 3
+#define MAX_CLIENTS 10
 #define DEFAULT_SERVER_PORT "27016"
 
 // matrix
@@ -46,6 +46,6 @@ struct studentInfo {
 
 typedef struct Matrix {
 	int order; // number of rows = number of columns	
-	int* data; // a pointer to an array of n_rows pointers to rows
+	int data[MAX_ORDER * MAX_ORDER]; // a pointer to an array of n_rows pointers to rows
 } Matrix;
 

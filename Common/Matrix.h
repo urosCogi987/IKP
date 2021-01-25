@@ -2,6 +2,6 @@
 
 #include "Common.h"
 
-Matrix* EnterMatrixByHand(int order);
+Matrix EnterMatrixByHand(int order);
 
-Matrix* EnterMatrixRandomly(int order);
+Matrix EnterMatrixRandomly(int order);
