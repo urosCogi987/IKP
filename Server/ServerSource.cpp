@@ -5,10 +5,12 @@ int main()
 {	
 	SOCKET listenSocket = INVALID_SOCKET;	// Socket used for listening for new clients 	
 	SOCKET clientSockets[MAX_CLIENTS];		// Sockets used for communication with client
-	short lastIndex = 0;	
+	int lastIndex = 0;						// Index of last connected client
 	int iResult;							// Variable used to store function return value	
 	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
-	unsigned long  mode = 1;
+	unsigned long  mode = 1;				// For unblocking mode (ioctlsocket)
+
+	
 
 	if (!InitializeAndListen(&listenSocket, SERVER_PORT)) {
 		
@@ -27,8 +29,7 @@ int main()
 	timeVal.tv_sec = 1;
 	timeVal.tv_usec = 0;
 
-
-	studentInfo *student;
+	
 	Matrix* matrica;
 
 	while (true)
@@ -36,21 +37,20 @@ int main()
 		// initialize socket set
 		FD_ZERO(&readfds);
 
-		// add server's socket and clients' sockets to set
+		// add server's socket to set
 		if (lastIndex != MAX_CLIENTS)
 		{
 			FD_SET(listenSocket, &readfds);
 		}
 
+		// add clients' sockets to set
 		for (int i = 0; i < lastIndex; i++)
 		{
 			FD_SET(clientSockets[i], &readfds);
 		}
 
 		// wait for events on set
-		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);	/* NAPRAVI ZASTITU OD 
-																		PREVISE KLIJENATA */
-
+		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);	/* NAPRAVI ZASTITU OD PREVISE KLIJENATA */																		
 		if (selectResult == SOCKET_ERROR)
 		{
 			printf("Select failed with error: %d\n", WSAGetLastError());
@@ -76,60 +76,42 @@ int main()
 				printf("Crashed in Recevier thread\n");
 				return 1;
 			}			
-						
-
-			if (clientSockets[lastIndex] == INVALID_SOCKET)
-			{
-				if (WSAGetLastError() == WSAECONNRESET)
-				{
-					printf("accept failed, because timeout for client request has expired.\n");
-				}
-				else
-				{
-					printf("accept failed with error: %d\n", WSAGetLastError());
-				}
-			}
-			else
-			{
-				if (ioctlsocket(clientSockets[lastIndex], FIONBIO, &mode) != 0)
-				{
-					printf("ioctlsocket failed with error.");
-					continue;
-				}
-				lastIndex++;
-				printf("New client request accepted (%d). Client address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
-			}
+			
+			lastIndex++;
+			printf("New client request accepted (%d). Client address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));			
 		}
 		else
 		{
-
 			// Check if new message is received from connected clients
 			for (int i = 0; i < lastIndex; i++)
 			{
 				// Check if new message is received from client on position "i"
 				if (FD_ISSET(clientSockets[i], &readfds))
 				{
+					/*if (!ReceiveMatrix(clientSockets, i, &lastIndex, dataBuffer, BUFFER_SIZE))
+					{
+						closesocket(clientSockets[i]);
+						WSACleanup();
+						printf("Crashed in Recevier thread\n");
+						return 1;
+					}*/
+
+
 					iResult = recv(clientSockets[i], dataBuffer, BUFFER_SIZE, 0);
 
 					if (iResult > 0)
 					{
 						dataBuffer[iResult] = '\0';
 						printf("Message received from client (%d):\n", i + 1);
-
-						//primljenoj poruci u memoriji pristupiti preko pokazivaca tipa (studentInfo *)
-						//jer znamo format u kom je poruka poslata a to je struct studentInfo
+						
 						matrica = (Matrix*)dataBuffer;
 
 						for (int i = 0; i < matrica->order * matrica->order; i++)
 						{
 							printf("%d ", matrica->data[i]);
 						}
-						/*printf("Ime i prezime: %s %s  \n", student->ime, student->prezime);
-
-						printf("Poeni studenta: %d  \n", ntohs(student->poeni));*/
+						
 						printf("\n_______________________________  \n");
-
-
 					}
 					else if (iResult == 0)
 					{

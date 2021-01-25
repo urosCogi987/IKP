@@ -35,7 +35,7 @@ int main()
 			mByHand = EnterMatrixByHand(order);			
 
 			printf("\nMatrix you entered: \n");
-			for (int i = 0; i < order * order; i++)		// I  i=1	
+			for (int i = 0; i < order * order; i++)		
 			{
 				if ((i != 0) &&(i % order == 0))
 					printf("\n");

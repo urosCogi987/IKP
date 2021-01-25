@@ -17,3 +17,9 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port);
 
 // Accept client sockets
 bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clientAddr, int *clientAddrSize);
+
+// Shutting down server side connection
+void ShutdownServerConnection();
+
+// Receive matrix
+bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBuffer, int length);

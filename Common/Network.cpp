@@ -235,10 +235,12 @@ bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clie
 					return false;
 
 				}
-
-				unsigned long  mode = 1;
-				if (ioctlsocket(*clientSocket, FIONBIO, &mode) != 0)
-					printf("ioctlsocket failed with error.");
+				else
+				{
+					unsigned long  mode = 1;
+					if (ioctlsocket(*clientSocket, FIONBIO, &mode) != 0)
+						printf("ioctlsocket failed with error.");
+				}				
 
 				printf("Connection accepted\n");
 				return true;
@@ -246,6 +248,69 @@ bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clie
 		}
 	} while (1);
 	
+
+	return true;
+}
+
+// Shutting down server side connection
+void ShutdownServerConnection()
+{
+
+}
+
+// Receive matrix
+bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBuffer, int length)
+{
+	Matrix* matrica;
+	int iResult;
+	iResult = recv(sockets[currClient], dataBuffer, length, 0);
+
+	// Uspesno primljena poruka
+	if (iResult > 0)
+	{
+		dataBuffer[iResult] = '\0';
+		printf("Message received from client (%d):\n", currClient + 1);
+		
+		matrica = (Matrix*)dataBuffer;
+
+		for (int i = 0; i < matrica->order * matrica->order; i++)
+		{
+			printf("%d ", matrica->data[i]);
+		}
+		
+		printf("\n_______________________________  \n");
+	}
+	// Klijent se normalno diskonektovao
+	else if (iResult == 0)
+	{
+		// connection was closed gracefully
+		printf("Connection with client (%d) closed.\n\n", currClient + 1);
+		closesocket(sockets[currClient]);
+
+		// sort array and clean last place
+		for (int j = currClient; j < *lastIndex - 1; j++)
+		{
+			sockets[j] = sockets[j + 1];
+		}
+		sockets[*lastIndex - 1] = 0;
+
+		*lastIndex--;
+	}
+	else
+	{
+		// there was an error during recv
+		printf("recv failed with error: %d\n", WSAGetLastError());
+		closesocket(sockets[currClient]);
+
+		// sort array and clean last place
+		for (int j = currClient; j < *lastIndex - 1; j++)
+		{
+			sockets[j] = sockets[j + 1];
+		}
+		sockets[*lastIndex - 1] = 0;
+
+		*lastIndex--;
+	}
 
 	return true;
 }
