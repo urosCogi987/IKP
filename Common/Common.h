@@ -33,6 +33,7 @@
 
 // server
 #define MAX_CLIENTS 3
+#define DEFAULT_SERVER_PORT "27016"
 
 // matrix
 #define MAX_ORDER 5

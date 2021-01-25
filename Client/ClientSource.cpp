@@ -40,16 +40,16 @@ int main()
 				printf("%d\t", mByHand->data[i]);
 			}
 
-			// Slanje strukture matrice									Matrix*   ???
-			iResult = send(connectSocket, (char*)&mByHand, (int)sizeof(Matrix), 0);
-			// Check result of send function
-			if (iResult == SOCKET_ERROR)
-			{
-				printf("send failed with error: %d\n", WSAGetLastError());
-				closesocket(connectSocket);
-				WSACleanup();
-				return 1;
-			}
+			//// Slanje strukture matrice									Matrix*   ???
+			//iResult = send(connectSocket, (char*)&mByHand, (int)sizeof(Matrix), 0);
+			//// Check result of send function
+			//if (iResult == SOCKET_ERROR)
+			//{
+			//	printf("send failed with error: %d\n", WSAGetLastError());
+			//	closesocket(connectSocket);
+			//	WSACleanup();
+			//	return 1;
+			//}
 
 			break;
 		}

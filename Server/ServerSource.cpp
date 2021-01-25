@@ -2,89 +2,22 @@
 
 // TCP server that use non-blocking sockets
 int main()
-{
-	// Socket used for listening for new clients 
-	SOCKET listenSocket = INVALID_SOCKET;
+{	
+	SOCKET listenSocket = INVALID_SOCKET;	// Socket used for listening for new clients 	
+	SOCKET clientSockets[MAX_CLIENTS];		// Sockets used for communication with client
+	short lastIndex = 0;	
+	int iResult;							// Variable used to store function return value	
+	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
+	unsigned long  mode = 1;
 
-	// Sockets used for communication with client
-	SOCKET clientSockets[MAX_CLIENTS];
-	short lastIndex = 0;
-
-	// Variable used to store function return value
-	int iResult;
-
-	// Buffer used for storing incoming data
-	char dataBuffer[BUFFER_SIZE];
-
-	// WSADATA data structure that is to receive details of the Windows Sockets implementation
-	WSADATA wsaData;
-
-	// Initialize windows sockets library for this process
-	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
-	{
-		printf("WSAStartup failed with error: %d\n", WSAGetLastError());
+	if (!InitializeAndListen(&listenSocket, SERVER_PORT)) {
+		
 		return 1;
 	}
-
-	// Initialize serverAddress structure used by bind
-	sockaddr_in serverAddress;
-	memset((char*)&serverAddress, 0, sizeof(serverAddress));
-	serverAddress.sin_family = AF_INET;				// IPv4 address family
-	serverAddress.sin_addr.s_addr = INADDR_ANY;		// Use all available addresses
-	serverAddress.sin_port = htons(SERVER_PORT);	// Use specific port
 
 	//initialise all client_socket[] to 0 so not checked
 	memset(clientSockets, 0, MAX_CLIENTS * sizeof(SOCKET));
-
-	// Create a SOCKET for connecting to server
-	listenSocket = socket(AF_INET,      // IPv4 address family
-		SOCK_STREAM,  // Stream socket
-		IPPROTO_TCP); // TCP protocol
-
-	// Check if socket is successfully created
-	if (listenSocket == INVALID_SOCKET)
-	{
-		printf("socket failed with error: %ld\n", WSAGetLastError());
-		WSACleanup();
-		return 1;
-	}
-
-	// Setup the TCP listening socket - bind port number and local address to socket
-	iResult = bind(listenSocket, (struct sockaddr*) &serverAddress, sizeof(serverAddress));
-
-	// Check if socket is successfully binded to address and port from sockaddr_in structure
-	if (iResult == SOCKET_ERROR)
-	{
-		printf("bind failed with error: %d\n", WSAGetLastError());
-		closesocket(listenSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	//// All connections are by default accepted by protocol stek if socket is in listening mode.
-	//// With SO_CONDITIONAL_ACCEPT parameter set to true, connections will not be accepted by default
-	bool bOptVal = true;
-	int bOptLen = sizeof(bool);
-	iResult = setsockopt(listenSocket, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&bOptVal, bOptLen);
-	if (iResult == SOCKET_ERROR) {
-		printf("setsockopt for SO_CONDITIONAL_ACCEPT failed with error: %u\n", WSAGetLastError());
-	}
-
-	unsigned long  mode = 1;
-	if (ioctlsocket(listenSocket, FIONBIO, &mode) != 0)
-		printf("ioctlsocket failed with error.");
-
-	// Set listenSocket in listening mode
-	iResult = listen(listenSocket, SOMAXCONN);
-	if (iResult == SOCKET_ERROR)
-	{
-		printf("listen failed with error: %d\n", WSAGetLastError());
-		closesocket(listenSocket);
-		WSACleanup();
-		return 1;
-	}
-
-	printf("Server socket is set to listening mode. Waiting for new connection requests.\n");
+	
 
 	// set of socket descriptors
 	fd_set readfds;

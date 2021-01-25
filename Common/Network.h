@@ -9,3 +9,5 @@ bool InitializeAndConnect(char *argv, SOCKET* connectSocket, unsigned short port
 // Shutting down client side connection
 void shutdownClientConnection(SOCKET* connectSocket);
 
+// Server side connection
+bool InitializeAndListen(SOCKET* listenSocket, unsigned short port);

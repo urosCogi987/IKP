@@ -72,3 +72,85 @@ void shutdownClientConnection(SOCKET* connectSocket)
 	closesocket(*connectSocket);
 	WSACleanup();
 }
+
+bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
+{
+	int iResult;
+
+	if (InitializeWindowsSockets() == false)
+	{
+		return false;
+	}
+
+	addrinfo* resultingAddress = NULL;
+	addrinfo hints;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;       // IPv4 address
+	hints.ai_socktype = SOCK_STREAM; // Provide reliable data streaming
+	hints.ai_protocol = IPPROTO_TCP; // Use TCP protocol
+	hints.ai_flags = AI_PASSIVE;     // 
+
+	  // Resolve the server address and port
+	iResult = getaddrinfo(NULL, DEFAULT_SERVER_PORT, &hints, &resultingAddress);
+	if (iResult != 0)
+	{
+		printf("getaddrinfo failed with error: %d\n", iResult);
+		WSACleanup();
+		return false;
+	}
+
+	// Create a SOCKET for connecting to server
+	*listenSocket = socket(AF_INET,      // IPv4 address family
+		SOCK_STREAM,  // Stream socket
+		IPPROTO_TCP); // TCP protocol
+
+	// Check if socket is successfully created
+	if (*listenSocket == INVALID_SOCKET)
+	{
+		printf("socket failed with error: %ld\n", WSAGetLastError());
+		freeaddrinfo(resultingAddress);
+		WSACleanup();
+		return 1;
+	}
+
+	// Setup the TCP listening socket - bind port number and local address to socket
+	iResult = bind(*listenSocket, resultingAddress->ai_addr, (int)resultingAddress->ai_addrlen);
+
+	// Check if socket is successfully binded to address and port from sockaddr_in structure
+	if (iResult == SOCKET_ERROR)
+	{
+		printf("bind failed with error: %d\n", WSAGetLastError());
+		freeaddrinfo(resultingAddress);
+		closesocket(*listenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	//// All connections are by default accepted by protocol stek if socket is in listening mode.
+	//// With SO_CONDITIONAL_ACCEPT parameter set to true, connections will not be accepted by default
+	bool bOptVal = true;
+	int bOptLen = sizeof(bool);
+	iResult = setsockopt(*listenSocket, SOL_SOCKET, SO_CONDITIONAL_ACCEPT, (char *)&bOptVal, bOptLen);
+	if (iResult == SOCKET_ERROR) {
+		printf("setsockopt for SO_CONDITIONAL_ACCEPT failed with error: %u\n", WSAGetLastError());
+	}
+
+	unsigned long  mode = 1;
+	if (ioctlsocket(*listenSocket, FIONBIO, &mode) != 0)
+		printf("ioctlsocket failed with error.");
+
+	// Set listenSocket in listening mode
+	iResult = listen(*listenSocket, SOMAXCONN);
+	if (iResult == SOCKET_ERROR)
+	{
+		printf("listen failed with error: %d\n", WSAGetLastError());
+		closesocket(*listenSocket);
+		WSACleanup();
+		return 1;
+	}
+
+	printf("Server socket is set to listening mode. Waiting for new connection requests.\n");
+
+	return true;
+}
