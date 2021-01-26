@@ -23,3 +23,6 @@ void ShutdownServerConnection();
 
 // Receive matrix
 bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBuffer, int length);
+
+
+bool AcceptWorkerSockets(SOCKET* clientSocket, SOCKET* listenSocket);

@@ -29,24 +29,30 @@
 // client
 #define SERVER_IP_ADDRESS "127.0.0.1"
 #define SERVER_PORT 27016
+#define SERVER_PORT_DVA 27017
 #define BUFFER_SIZE 256
 
 
 // server
 #define MAX_CLIENTS 10
 #define DEFAULT_SERVER_PORT "27016"
+#define CLIENT_PORT 27016
 
 // matrix
 #define MAX_ORDER 5
 
-struct studentInfo {
-	char ime[15];
-	char prezime[20];
-	short poeni;
-};
+#define MAX_WORKERS 125
+
 
 typedef struct Matrix {
 	int order; // number of rows = number of columns	
 	int data[MAX_ORDER * MAX_ORDER]; // a pointer to an array of n_rows pointers to rows
 } Matrix;
 
+typedef struct paramsClientRecv {
+	SOCKET* clientSockets;
+} paramsClientRecv;
+
+typedef struct paramsWorkerRecv {
+	SOCKET* workerSockets;
+} paramsWorkerRecv;

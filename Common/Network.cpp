@@ -135,8 +135,11 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	hints.ai_protocol = IPPROTO_TCP; // Use TCP protocol
 	hints.ai_flags = AI_PASSIVE;     // 
 
+	char* sPort = (char*)malloc(128);
+	snprintf(sPort, 128, "%u", port);
+
 	  // Resolve the server address and port
-	iResult = getaddrinfo(NULL, DEFAULT_SERVER_PORT, &hints, &resultingAddress);
+	iResult = getaddrinfo(NULL, sPort, &hints, &resultingAddress);
 	if (iResult != 0)
 	{
 		printf("getaddrinfo failed with error: %d\n", iResult);

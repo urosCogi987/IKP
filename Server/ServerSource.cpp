@@ -3,163 +3,44 @@
 // TCP server that use non-blocking sockets
 int main()
 {	
+	// CLIENT
 	SOCKET listenSocket = INVALID_SOCKET;	// Socket used for listening for new clients 	
-	SOCKET clientSockets[MAX_CLIENTS];		// Sockets used for communication with client
+	SOCKET listenSocket2 = INVALID_SOCKET;
+
 	int lastIndex = 0;						// Index of last connected client
 	int iResult;							// Variable used to store function return value	
 	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
 	unsigned long  mode = 1;				// For unblocking mode (ioctlsocket)
 
+
+
+	SOCKET clientSockets[MAX_CLIENTS];		// Sockets used for communication with clients
+	SOCKET workerSockets[MAX_WORKERS];		// Sockets used for communication with workers
 	
-
-	if (!InitializeAndListen(&listenSocket, SERVER_PORT)) {
-		
-		return 1;
-	}
-
-	//initialise all client_socket[] to 0 so not checked
 	memset(clientSockets, 0, MAX_CLIENTS * sizeof(SOCKET));
+	memset(workerSockets, 0, MAX_WORKERS * sizeof(SOCKET));
+	
 	
 
-	// set of socket descriptors
-	fd_set readfds;
+	// Client thread
+	DWORD clientReceiverFunID;
+	HANDLE clientReceiverHandle;
 
-	// timeout for select function
-	timeval timeVal;
-	timeVal.tv_sec = 1;
-	timeVal.tv_usec = 0;
+	paramsClientRecv paramsClient;
+	paramsClient.clientSockets = clientSockets;
+	clientReceiverHandle = CreateThread(NULL, 0, &ClientReceiver, &paramsClient, 0, &clientReceiverFunID);
+
+	// Worker thread
+	DWORD workerReceiverFunID;
+	HANDLE workerReceiverHandle;
+
+	paramsWorkerRecv paramsWorker;
+	paramsWorker.workerSockets = workerSockets;
+	workerReceiverHandle = CreateThread(NULL, 0, &WorkerReceiver, &paramsWorker, 0, &workerReceiverFunID);
+
 
 	
-	Matrix* matrica;
-
-	while (true)
-	{
-		// initialize socket set
-		FD_ZERO(&readfds);
-
-		// add server's socket to set
-		if (lastIndex != MAX_CLIENTS)
-		{
-			FD_SET(listenSocket, &readfds);
-		}
-
-		// add clients' sockets to set
-		for (int i = 0; i < lastIndex; i++)
-		{
-			FD_SET(clientSockets[i], &readfds);
-		}
-
-		// wait for events on set
-		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);	/* NAPRAVI ZASTITU OD PREVISE KLIJENATA */																		
-		if (selectResult == SOCKET_ERROR)
-		{
-			printf("Select failed with error: %d\n", WSAGetLastError());
-			closesocket(listenSocket);
-			WSACleanup();
-			return 1;
-		}
-		else if (selectResult == 0) // timeout expired
-		{			
-			continue;
-		}
-		else if (FD_ISSET(listenSocket, &readfds))
-		{
-			// Struct for information about connected client
-			sockaddr_in clientAddr;
-			int clientAddrSize = sizeof(struct sockaddr_in);
-			
-			// Accept new client connection
-			if (!AcceptSockets(&clientSockets[lastIndex], &listenSocket, &clientAddr, &clientAddrSize))
-			{
-				closesocket(listenSocket);
-				WSACleanup();
-				printf("Crashed in Recevier thread\n");
-				return 1;
-			}			
-			
-			lastIndex++;
-			printf("New client request accepted (%d). Client address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));			
-		}
-		else
-		{
-			// Check if new message is received from connected clients
-			for (int i = 0; i < lastIndex; i++)
-			{
-				// Check if new message is received from client on position "i"
-				if (FD_ISSET(clientSockets[i], &readfds))
-				{
-					/*if (!ReceiveMatrix(clientSockets, i, &lastIndex, dataBuffer, BUFFER_SIZE))
-					{
-						closesocket(clientSockets[i]);
-						WSACleanup();
-						printf("Crashed in Recevier thread\n");
-						return 1;
-					}*/
-
-
-					iResult = recv(clientSockets[i], dataBuffer, BUFFER_SIZE, 0);
-
-					if (iResult > 0)
-					{					
-						dataBuffer[iResult] = '\0';
-						printf("Message received from client (%d):\n", i + 1);
-						
-						matrica = (Matrix*)dataBuffer;
-						
-						for (int i = 0; i < matrica->order * matrica->order; i++)
-						{
-							if ((i != 0) && (i % matrica->order == 0))
-								printf("\n");
-							printf("%d ", matrica->data[i]);							
-						}																							
-
-						// mozda vise tredova.
-						DWORD callerID;
-						HANDLE callerHandle;
-						/* OVDE TREBA NEKA F-JA, ZA RACUNANJE MINORA, */
-
-
-						for (int i = 0; i < 3; i++)
-						{
-							callerHandle = CreateThread(NULL, 0, &WorkerCaller, NULL, 0, &callerID);
-						}
-						
-						printf("\n_______________________________  \n");
-					}
-					else if (iResult == 0)
-					{
-						// connection was closed gracefully
-						printf("Connection with client (%d) closed.\n\n", i + 1);
-						closesocket(clientSockets[i]);
-
-						// sort array and clean last place
-						for (int j = i; j < lastIndex - 1; j++)
-						{
-							clientSockets[j] = clientSockets[j + 1];
-						}
-						clientSockets[lastIndex - 1] = 0;
-
-						lastIndex--;
-					}
-					else
-					{
-						// there was an error during recv
-						printf("recv failed with error: %d\n", WSAGetLastError());
-						closesocket(clientSockets[i]);
-
-						// sort array and clean last place
-						for (int j = i; j < lastIndex - 1; j++)
-						{
-							clientSockets[j] = clientSockets[j + 1];
-						}
-						clientSockets[lastIndex - 1] = 0;
-
-						lastIndex--;
-					}
-				}
-			}
-		}
-	}
+	getchar();
 
 	//Close listen and accepted sockets
 	closesocket(listenSocket);

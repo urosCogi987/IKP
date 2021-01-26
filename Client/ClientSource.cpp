@@ -9,12 +9,12 @@ int main()
 	char address[10] = "127.0.0.1";			// server IP addresss
 
 
-	if (!InitializeAndConnect(address, &connectSocket, SERVER_PORT))
+	if (!InitializeAndConnect(address, &connectSocket, CLIENT_PORT))
 	{
 		// Error, shutting down client connection
 		shutdownClientConnection(&connectSocket);
 		printf("Client side connection failed: %ld\n", WSAGetLastError());
-		return 1;
+		return 1; 
 	}
 	
 	int answer = 0;
