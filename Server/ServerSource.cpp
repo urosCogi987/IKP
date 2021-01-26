@@ -1,4 +1,4 @@
-#include "../Common/Network.h"
+#include "WorkerHelper.h"
 
 // TCP server that use non-blocking sockets
 int main()
@@ -100,27 +100,28 @@ int main()
 					iResult = recv(clientSockets[i], dataBuffer, BUFFER_SIZE, 0);
 
 					if (iResult > 0)
-					{
+					{					
 						dataBuffer[iResult] = '\0';
 						printf("Message received from client (%d):\n", i + 1);
 						
 						matrica = (Matrix*)dataBuffer;
-
+						
 						for (int i = 0; i < matrica->order * matrica->order; i++)
 						{
 							if ((i != 0) && (i % matrica->order == 0))
 								printf("\n");
-							printf("%d ", matrica->data[i]);
-						}
+							printf("%d ", matrica->data[i]);							
+						}																							
 
-						// CALCULATE MINOR
-						LPCWSTR mode = L"open";
-						//LPCSTR mode = L"open";
-						//ShellExecute(NULL, mode, L"..\\x64\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);	// OVDE
+						// mozda vise tredova.
+						DWORD callerID;
+						HANDLE callerHandle;
+						/* OVDE TREBA NEKA F-JA, ZA RACUNANJE MINORA, */
 
-						for (int i = 0; i < 4; i++)
+
+						for (int i = 0; i < 3; i++)
 						{
-
+							callerHandle = CreateThread(NULL, 0, &WorkerCaller, NULL, 0, &callerID);
 						}
 						
 						printf("\n_______________________________  \n");

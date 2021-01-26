@@ -17,6 +17,7 @@
 #include <conio.h>
 #include <cstdbool>
 #include <limits.h> 
+#include <winapifamily.h>
 
 
 //#define BUFFER_SIZE 256
