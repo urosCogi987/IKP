@@ -108,7 +108,19 @@ int main()
 
 						for (int i = 0; i < matrica->order * matrica->order; i++)
 						{
+							if ((i != 0) && (i % matrica->order == 0))
+								printf("\n");
 							printf("%d ", matrica->data[i]);
+						}
+
+						// CALCULATE MINOR
+						LPCWSTR mode = L"open";
+						//LPCSTR mode = L"open";
+						//ShellExecute(NULL, mode, L"..\\x64\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);	// OVDE
+
+						for (int i = 0; i < 4; i++)
+						{
+
 						}
 						
 						printf("\n_______________________________  \n");
