@@ -43,23 +43,44 @@
 
 #define MAX_WORKERS 125
 
-
+// Matrix
 typedef struct Matrix {
 	int order; // number of rows = number of columns	
 	int data[MAX_ORDER * MAX_ORDER]; // a pointer to an array of n_rows pointers to rows
 } Matrix;
 
+
+// Koji klijent je pokrenuo koje workere
+typedef struct clientWorkerStruct {
+	int idClient;
+	int* idWorkers;
+	int numOfWorkers;
+} clientWorkerStruct;
+
+
+// Cvor liste
+typedef struct node {
+	clientWorkerStruct* clientWorker;
+	struct node * next;
+} node_t;
+
+
+// Lista
+typedef struct listStruct {
+	node_t* head;
+	CRITICAL_SECTION critSec;
+} listStruct;
+
+
+// Parametri za Client thread
 typedef struct paramsClientRecv {
 	SOCKET* clientSockets;
+	listStruct* clientWorkerList;
 } paramsClientRecv;
 
+
+// Parametri za Worker thread
 typedef struct paramsWorkerRecv {
 	SOCKET* workerSockets;
+	listStruct* clientWorkerList;
 } paramsWorkerRecv;
-
-
-// nece vako naravno...
-typedef struct ListOfMatrices {
-	Matrix* list;
-	int counter;
-} ListOfMatrices;

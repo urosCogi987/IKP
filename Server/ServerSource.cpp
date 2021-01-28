@@ -21,6 +21,8 @@ int main()
 	memset(workerSockets, 0, MAX_WORKERS * sizeof(SOCKET));
 	
 	
+	listStruct* pClientWorkerList = InitList();
+
 
 	// Client thread
 	DWORD clientReceiverFunID;
@@ -28,6 +30,7 @@ int main()
 
 	paramsClientRecv paramsClient;
 	paramsClient.clientSockets = clientSockets;
+	paramsClient.clientWorkerList = pClientWorkerList;
 	clientReceiverHandle = CreateThread(NULL, 0, &ClientReceiver, &paramsClient, 0, &clientReceiverFunID);
 
 	// Worker thread
@@ -36,6 +39,7 @@ int main()
 
 	paramsWorkerRecv paramsWorker;
 	paramsWorker.workerSockets = workerSockets;
+	paramsWorker.clientWorkerList = pClientWorkerList;
 	workerReceiverHandle = CreateThread(NULL, 0, &WorkerReceiver, &paramsWorker, 0, &workerReceiverFunID);
 
 

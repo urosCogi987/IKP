@@ -18,6 +18,8 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 	paramsClientRecv* params = (paramsClientRecv*)lpParam;		
 	SOCKET* arrayOfClientSocks = params->clientSockets;
 
+	listStruct* clientWorkerList = params->clientWorkerList;
+
 	Matrix* matrica;
 
 	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
@@ -206,6 +208,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 	paramsWorkerRecv* params = (paramsWorkerRecv*)lpParam;
 	SOCKET* arrayOfWorkerSocks = params->workerSockets;
 	
+	listStruct* clientWorkerList = params->clientWorkerList;
 
 	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
 	SOCKET listenSocket2 = INVALID_SOCKET;	// Socket used for listening for new clients 	
