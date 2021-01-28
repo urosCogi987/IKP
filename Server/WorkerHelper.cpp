@@ -29,6 +29,8 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 	unsigned short port = 27016;
 	int numOfThreads;
 
+	int workerCounter = 0;
+
 	DWORD funId;
 	HANDLE handle;
 
@@ -150,9 +152,30 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 						{
 							//callerHandle = CreateThread(NULL, 0, &WorkerCaller, NULL, 0, &callerID);
 							ShellExecute(NULL, "open", "..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);
+							workerCounter++;
 						}
 
+						// DODAVANJE KLIJENTA U LISTU						
+						clientWorkerStruct* cwStr = (clientWorkerStruct *)malloc(sizeof(clientWorkerStruct));
+						cwStr->idClient = i;
+						cwStr->numOfWorkers = numOfThreads;
+						cwStr->clientSocket = arrayOfClientSocks[i];
+						cwStr->det = 0;
+						cwStr->counter = 0;
+						cwStr->ready = false;
+						for (int j = 0; j < numOfThreads; j++)
+						{
+							cwStr->idWorkers[j] = workerCounter + j;
+						}
 						
+						AddOnEnd(clientWorkerList, cwStr);
+						// DODAVANJE KLIJENTA U LISTU
+
+						// Client thread
+						/*DWORD clientSenderFunID;
+						HANDLE clientSenderHandle;
+
+						clientReceiverHandle = CreateThread(NULL, 0, &ClientReceiver, &paramsClient, 0, &clientReceiverFunID);*/
 
 						printf("\n_______________________________  \n");
 					}
@@ -216,7 +239,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 	int lastIndex = 0;						// Index of last connected worker	
 	unsigned short port = 27017;	
 
-
+	int msgForClient;
 
 	// set of socket descriptors
 	fd_set readfds;
@@ -305,7 +328,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 
 
 			lastIndex++;
-			printf("New WORKER request accepted (%d). Client address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+			printf("New WORKER request accepted (%d). Worker address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 		}
 		else
 		{	/* PRIMANJE PORUKA OD WORKERA	*/
@@ -319,6 +342,38 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 					if (iResult > 0)
 					{
 						printf("\n\nVRACENO NAZAD BRE SIPU RACKU BOGA TI MEBJE:\n\n%d\n\n", *(int*)dataBuffer);
+
+						/* NE ZNAM DAL ISPOD MENJA STVARI U LISTI IL SAMO LOKALNO, LUGI-SAAAAN */
+
+						for (node_t** current = &clientWorkerList->head; *current; current = &(*current)->next)	// ako u listi postoji thread sa ovim ID
+						{
+							for (int j = 0; j < (*current)->clientWorker->numOfWorkers; j++)	// za svaki worker
+							{
+								if ((*current)->clientWorker->idWorkers[j] == i)	// ako je njegov ID jednak ID koji je poslao deo resenja
+								{
+									
+									/*(*current)->clientWorker->det += *(int*)dataBuffer;
+									(*current)->clientWorker->counter++;
+
+									if ((*current)->clientWorker->counter == (*current)->clientWorker->numOfWorkers)
+									{
+										(*current)->clientWorker->ready = true;
+									}*/
+									//msgForClient = *(int*)dataBuffer;
+
+									//iResult = send((*current)->clientWorker->clientSocket, (char*)&msgForClient, sizeof(msgForClient), 0);	// (char*)&lastIndex
+									//if (iResult == SOCKET_ERROR)
+									//{
+									//	printf("send failed with error: %d\n", WSAGetLastError());
+									//	//closesocket(arrayOfWorkerSocks[i]);
+									//	//WSACleanup();
+									//	return false;
+									//}
+
+									//printf("Primljena poruka vracena Klijentu.\n");
+								}
+							}							
+						}
 					}
 					else if (iResult == 0)
 					{
@@ -354,6 +409,13 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 			}
 		}
 	}
+
+
+	return 0;
+}
+
+DWORD WINAPI ClientSender(LPVOID lpParam)
+{
 
 
 	return 0;

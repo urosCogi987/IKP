@@ -24,7 +24,7 @@ int main()
 	listStruct* pClientWorkerList = InitList();
 
 
-	// Client thread
+	// Client receiver thread
 	DWORD clientReceiverFunID;
 	HANDLE clientReceiverHandle;
 
@@ -33,7 +33,7 @@ int main()
 	paramsClient.clientWorkerList = pClientWorkerList;
 	clientReceiverHandle = CreateThread(NULL, 0, &ClientReceiver, &paramsClient, 0, &clientReceiverFunID);
 
-	// Worker thread
+	// Worker receiver thread
 	DWORD workerReceiverFunID;
 	HANDLE workerReceiverHandle;
 
@@ -42,7 +42,13 @@ int main()
 	paramsWorker.clientWorkerList = pClientWorkerList;
 	workerReceiverHandle = CreateThread(NULL, 0, &WorkerReceiver, &paramsWorker, 0, &workerReceiverFunID);
 
+	DWORD clientSenderFunID;
+	HANDLE clientSenderHandle;
 
+	// Client sender thread
+	paramsClientSend paramsSendClient;
+	paramsSendClient.clientWorkerList = pClientWorkerList;
+	clientReceiverHandle = CreateThread(NULL, 0, &ClientSender, &paramsSendClient, 0, &clientSenderFunID); 
 	
 	getchar();
 

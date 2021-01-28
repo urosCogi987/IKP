@@ -53,8 +53,12 @@ typedef struct Matrix {
 // Koji klijent je pokrenuo koje workere
 typedef struct clientWorkerStruct {
 	int idClient;
-	int* idWorkers;
+	int idWorkers[MAX_WORKERS];
 	int numOfWorkers;
+	SOCKET clientSocket;
+	int det;
+	bool ready;
+	int counter;
 } clientWorkerStruct;
 
 
@@ -72,7 +76,7 @@ typedef struct listStruct {
 } listStruct;
 
 
-// Parametri za Client thread
+// Parametri za Client receive thread
 typedef struct paramsClientRecv {
 	SOCKET* clientSockets;
 	listStruct* clientWorkerList;
@@ -84,3 +88,9 @@ typedef struct paramsWorkerRecv {
 	SOCKET* workerSockets;
 	listStruct* clientWorkerList;
 } paramsWorkerRecv;
+
+
+// Parametri za Client send thread
+typedef struct paramsClientSend {
+	listStruct* clientWorkerList;
+} paramsClientSend;

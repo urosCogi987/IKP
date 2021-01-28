@@ -1,2 +1,7 @@
-﻿  Network.cpp
+﻿  List.cpp
+c:\users\korisnik\postman\desktop\jbtikp\ikp\common\list.cpp(29): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'node *'
+  Matrix.cpp
+c:\users\korisnik\postman\desktop\jbtikp\ikp\common\matrix.cpp(26): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Network.cpp
+  Generating Code...
   Common.vcxproj -> C:\Users\Korisnik\Postman\Desktop\jbtIKP\IKP\Debug\Common.lib
