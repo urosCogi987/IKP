@@ -56,3 +56,10 @@ typedef struct paramsClientRecv {
 typedef struct paramsWorkerRecv {
 	SOCKET* workerSockets;
 } paramsWorkerRecv;
+
+
+// nece vako naravno...
+typedef struct ListOfMatrices {
+	Matrix* list;
+	int counter;
+} ListOfMatrices;

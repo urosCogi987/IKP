@@ -1,10 +1,6 @@
-﻿  ServerSource.cpp
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\serversource.cpp(11): warning C4101: 'iResult': unreferenced local variable
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\serversource.cpp(12): warning C4101: 'dataBuffer': unreferenced local variable
-  WorkerHelper.cpp
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(30): warning C4101: 'handle': unreferenced local variable
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(29): warning C4101: 'funId': unreferenced local variable
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(196): warning C4101: 'iResult': unreferenced local variable
-c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(194): warning C4101: 'dataBuffer': unreferenced local variable
-  Generating Code...
+﻿  WorkerHelper.cpp
+c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(31): warning C4101: 'handle': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(30): warning C4101: 'funId': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(132): warning C4101: 'callerHandle': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikp_projekat\ikp\server\workerhelper.cpp(131): warning C4101: 'callerID': unreferenced local variable
   Server.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKP_projekat\IKP\Debug\Server.exe

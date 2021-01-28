@@ -1,4 +1,5 @@
 ﻿  WorkerHelp.cpp
+c:\users\korisnik\postman\desktop\ikp_projekat\ikp\worker\workerhelp.cpp(11): warning C4101: 'sendBack': unreferenced local variable
   WorkerSource.cpp
   Generating Code...
   Worker.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKP_projekat\IKP\Debug\Worker.exe

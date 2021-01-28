@@ -32,7 +32,7 @@ bool InitializeAndConnect(char *argv, SOCKET* connectSocket, unsigned short port
 	if (*connectSocket == INVALID_SOCKET)
 	{
 		printf("socket failed with error: %ld\n", WSAGetLastError());
-		WSACleanup();
+		//WSACleanup();
 		return false;
 	}
 
@@ -46,8 +46,8 @@ bool InitializeAndConnect(char *argv, SOCKET* connectSocket, unsigned short port
 	if (connect(*connectSocket, (SOCKADDR*)&serverAddress, sizeof(sockaddr_in)) == SOCKET_ERROR)
 	{
 		printf("Unable to connect to server.\n");
-		closesocket(*connectSocket);
-		WSACleanup();
+		//closesocket(*connectSocket);
+		//WSACleanup();
 		return false;
 	}	
 
@@ -64,13 +64,13 @@ void shutdownClientConnection(SOCKET* connectSocket)
 	if (iResult == SOCKET_ERROR)
 	{
 		printf("Shutdown failed with error: %d\n", WSAGetLastError());
-		closesocket(*connectSocket);
-		WSACleanup();
+		//closesocket(*connectSocket);
+		//WSACleanup();
 		return;
 	}
 
-	closesocket(*connectSocket);
-	WSACleanup();
+	//closesocket(*connectSocket);
+	//WSACleanup();
 }
 
 // Send Matrix
@@ -92,8 +92,8 @@ bool SendMatrix(SOCKET socket, Matrix m, int length)
 		if (iResult == SOCKET_ERROR)
 		{
 			printf("Select failed with error: %d\n", WSAGetLastError());
-			closesocket(socket);
-			WSACleanup();
+			//closesocket(socket);
+			//WSACleanup();
 			return false;
 		}
 		else if (iResult == 0) {
@@ -105,8 +105,8 @@ bool SendMatrix(SOCKET socket, Matrix m, int length)
 			if (iResult == SOCKET_ERROR)
 			{
 				printf("send failed with error: %d\n", WSAGetLastError());
-				closesocket(socket);
-				WSACleanup();
+				//closesocket(socket);
+				//WSACleanup();
 				return false;
 			}
 
@@ -157,7 +157,7 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	{
 		printf("socket failed with error: %ld\n", WSAGetLastError());
 		freeaddrinfo(resultingAddress);
-		WSACleanup();
+		//WSACleanup();
 		return 1;
 	}
 
@@ -169,8 +169,8 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	{
 		printf("bind failed with error: %d\n", WSAGetLastError());
 		freeaddrinfo(resultingAddress);
-		closesocket(*listenSocket);
-		WSACleanup();
+		//closesocket(*listenSocket);
+		//WSACleanup();
 		return 1;
 	}
 
@@ -192,8 +192,8 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	if (iResult == SOCKET_ERROR)
 	{
 		printf("listen failed with error: %d\n", WSAGetLastError());
-		closesocket(*listenSocket);
-		WSACleanup();
+		//closesocket(*listenSocket);
+		//WSACleanup();
 		return 1;
 	}
 
@@ -233,8 +233,8 @@ bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clie
 
 				if (*clientSocket == INVALID_SOCKET) {
 					printf("accept failed with error: %d\n", WSAGetLastError());
-					closesocket(*listenSocket);
-					WSACleanup();
+					//closesocket(*listenSocket);
+					//WSACleanup();
 					return false;
 
 				}
@@ -288,7 +288,7 @@ bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBu
 	{
 		// connection was closed gracefully
 		printf("Connection with client (%d) closed.\n\n", currClient + 1);
-		closesocket(sockets[currClient]);
+		//closesocket(sockets[currClient]);
 
 		// sort array and clean last place
 		for (int j = currClient; j < *lastIndex - 1; j++)
@@ -303,7 +303,7 @@ bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBu
 	{
 		// there was an error during recv
 		printf("recv failed with error: %d\n", WSAGetLastError());
-		closesocket(sockets[currClient]);
+		//closesocket(sockets[currClient]);
 
 		// sort array and clean last place
 		for (int j = currClient; j < *lastIndex - 1; j++)
