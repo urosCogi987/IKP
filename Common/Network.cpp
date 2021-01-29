@@ -317,3 +317,63 @@ bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBu
 
 	return true;
 }
+
+void ResultFromServer(SOCKET socket)
+{
+	int iResult;
+	int bytesReceived = 0;
+	fd_set readfds;
+
+	char buffer[BUFFER_SIZE];
+	timeval timeVal;
+	timeVal.tv_sec = 0;
+	timeVal.tv_usec = 50;
+	int size = 0;
+	int rezultat;
+
+	do {
+
+		FD_ZERO(&readfds);
+		FD_SET(socket, &readfds);
+
+		iResult = select(0, &readfds, NULL, NULL, &timeVal);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("Select failed with error: %d\n", WSAGetLastError());
+			//closesocket(socket);			
+		}
+		else if (iResult == 0)
+		{		
+		}
+		else if (FD_ISSET(socket, &readfds))
+		{
+			iResult = recv(socket, buffer, 4, 0);
+
+			if (iResult > 0) 
+			{
+				rezultat = *(int*)buffer;
+				
+				printf("\n***Determinanta matrice je: %d***\n", rezultat);				
+			}
+			else if (iResult == 0) 
+			{
+
+				printf("Connection  is closed. [SERVER SHUTDOWN INITATED]\n");				
+				break;
+			}
+			else
+			{
+				// WSAWouldBlock error 
+				if (WSAGetLastError() == 10035) {
+					continue;
+				}
+
+				printf("recv failed with error: %d\n", WSAGetLastError());
+				//closesocket(socket);
+			}
+		}
+
+	} while (true);
+}
+

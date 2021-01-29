@@ -27,3 +27,6 @@ bool ReceiveMatrix(SOCKET* sockets, int currClient, int* lastIndex, char* dataBu
 
 
 bool AcceptWorkerSockets(SOCKET* clientSocket, SOCKET* listenSocket);
+
+
+void ResultFromServer(SOCKET socket);

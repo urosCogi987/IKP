@@ -42,13 +42,13 @@ int main()
 	paramsWorker.clientWorkerList = pClientWorkerList;
 	workerReceiverHandle = CreateThread(NULL, 0, &WorkerReceiver, &paramsWorker, 0, &workerReceiverFunID);
 
-	DWORD clientSenderFunID;
-	HANDLE clientSenderHandle;
+	//DWORD clientSenderFunID;
+	//HANDLE clientSenderHandle;
 
-	// Client sender thread
-	paramsClientSend paramsSendClient;
-	paramsSendClient.clientWorkerList = pClientWorkerList;
-	clientReceiverHandle = CreateThread(NULL, 0, &ClientSender, &paramsSendClient, 0, &clientSenderFunID); 
+	//// Client sender thread
+	//paramsClientSend paramsSendClient;
+	//paramsSendClient.clientWorkerList = pClientWorkerList;
+	//clientReceiverHandle = CreateThread(NULL, 0, &ClientSender, &paramsSendClient, 0, &clientSenderFunID); 
 	
 	getchar();
 

@@ -58,7 +58,7 @@ typedef struct clientWorkerStruct {
 	SOCKET clientSocket;
 	int det;
 	bool ready;
-	int counter;
+	int counter;	// zbog provere pristiglih tredova
 } clientWorkerStruct;
 
 
@@ -94,3 +94,9 @@ typedef struct paramsWorkerRecv {
 typedef struct paramsClientSend {
 	listStruct* clientWorkerList;
 } paramsClientSend;
+
+
+// Parametri za Server receive thread (na klijentu)
+typedef struct paramsServerRecv {
+	SOCKET* connectSocket;
+} paramsServerRecv;

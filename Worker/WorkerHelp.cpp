@@ -59,7 +59,7 @@ bool ConnectToServer()
 					return false;
 				}
 
-				printf("Primljena poruka vracena nazad\n");				
+				printf("Primljena poruka vracena nazad\n");						break;
 			}
 			else if (iResult == SOCKET_ERROR) 
 			{

@@ -129,11 +129,7 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 							if ((i != 0) && (i % matrica->order == 0))
 								printf("\n");
 							printf("%d ", matrica->data[i]);
-						}
-
-						// mozda vise tredova.
-						DWORD callerID;
-						HANDLE callerHandle;
+						}												
 
 						/* OVDE TREBA NEKA F-JA, ZA RACUNANJE MINORA, */
 						if ((matrica->order == 1) || (matrica->order == 2) || (matrica->order == 3))
@@ -144,15 +140,12 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 							numOfThreads = 5;
 
 						// Opening new workers
-						LPCWSTR modee = L"open";
-
-						
+						LPCWSTR modee = L"open";						
 
 						for (int i = 0; i < numOfThreads; i++)
 						{
 							//callerHandle = CreateThread(NULL, 0, &WorkerCaller, NULL, 0, &callerID);
-							ShellExecute(NULL, "open", "..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);
-							workerCounter++;
+							ShellExecute(NULL, "open", "..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);							
 						}
 
 						// DODAVANJE KLIJENTA U LISTU						
@@ -163,10 +156,13 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 						cwStr->det = 0;
 						cwStr->counter = 0;
 						cwStr->ready = false;
+						cwStr->clientSocket = arrayOfClientSocks[i];			// dal je potrebno uopste?
 						for (int j = 0; j < numOfThreads; j++)
 						{
-							cwStr->idWorkers[j] = workerCounter + j;
+							cwStr->idWorkers[j] = workerCounter + j;							
 						}
+
+						workerCounter += numOfThreads;
 						
 						AddOnEnd(clientWorkerList, cwStr);
 						// DODAVANJE KLIJENTA U LISTU
@@ -238,6 +234,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 	int iResult;							// Multipurpose var
 	int lastIndex = 0;						// Index of last connected worker	
 	unsigned short port = 27017;	
+	int threadId;
 
 	int msgForClient;
 
@@ -308,8 +305,6 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 				printf("Crashed in Recevier thread\n");
 				return 1;
 			}
-
-
 			
 			
 			iResult = send(arrayOfWorkerSocks[lastIndex], (char*)&lastIndex, sizeof(lastIndex),0);	// (char*)&lastIndex
@@ -321,16 +316,12 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 				return false;
 			}
 			printf("Poruka jebeno poslata\n");
-
-			
-						
-
-
+									
 
 			lastIndex++;
 			printf("New WORKER request accepted (%d). Worker address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 		}
-		else
+		else 
 		{	/* PRIMANJE PORUKA OD WORKERA	*/
 			// Check if new message is received from connected clients
 			for (int i = 0; i < lastIndex; i++)
@@ -343,37 +334,49 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 					{
 						printf("\n\nVRACENO NAZAD BRE SIPU RACKU BOGA TI MEBJE:\n\n%d\n\n", *(int*)dataBuffer);
 
+						threadId = *(int*)dataBuffer;
 						/* NE ZNAM DAL ISPOD MENJA STVARI U LISTI IL SAMO LOKALNO, LUGI-SAAAAN */
 
 						for (node_t** current = &clientWorkerList->head; *current; current = &(*current)->next)	// ako u listi postoji thread sa ovim ID
 						{
 							for (int j = 0; j < (*current)->clientWorker->numOfWorkers; j++)	// za svaki worker
 							{
-								if ((*current)->clientWorker->idWorkers[j] == i)	// ako je njegov ID jednak ID koji je poslao deo resenja
+								if ((*current)->clientWorker->idWorkers[j] == threadId)	// ako je njegov ID jednak ID koji je poslao deo resenja
 								{
-									
-									/*(*current)->clientWorker->det += *(int*)dataBuffer;
+									// NAPRAVI UPDATE NODE
+									(*current)->clientWorker->det += *(int*)dataBuffer;
 									(*current)->clientWorker->counter++;
 
-									if ((*current)->clientWorker->counter == (*current)->clientWorker->numOfWorkers)
+									if ((*current)->clientWorker->counter == (*current)->clientWorker->numOfWorkers)	// Ako su svi threadovi vratili vred
 									{
 										(*current)->clientWorker->ready = true;
-									}*/
-									//msgForClient = *(int*)dataBuffer;
-
-									//iResult = send((*current)->clientWorker->clientSocket, (char*)&msgForClient, sizeof(msgForClient), 0);	// (char*)&lastIndex
-									//if (iResult == SOCKET_ERROR)
-									//{
-									//	printf("send failed with error: %d\n", WSAGetLastError());
-									//	//closesocket(arrayOfWorkerSocks[i]);
-									//	//WSACleanup();
-									//	return false;
-									//}
-
-									//printf("Primljena poruka vracena Klijentu.\n");
+									}
+									//msgForClient = *(int*)dataBuffer;														
 								}
 							}							
 						}
+
+						PrintList(clientWorkerList);
+
+
+						for (node_t** current = &clientWorkerList->head; *current; current = &(*current)->next)
+						{
+							if ((*current)->clientWorker->ready == true)
+							{
+								iResult = send((*current)->clientWorker->clientSocket, (char*)&threadId, sizeof(threadId), 0);
+								if (iResult == SOCKET_ERROR)
+								{
+									printf("send failed with error: %d\n", WSAGetLastError());
+									//closesocket(arrayOfWorkerSocks[i]);
+									//WSACleanup();
+									return false;
+								}
+
+								printf("Primljena poruka vracena Klijentu.\n");
+							}							
+						}
+
+						
 					}
 					else if (iResult == 0)
 					{

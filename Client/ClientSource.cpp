@@ -1,5 +1,4 @@
-#include "../Common/Network.h"
-#include "../Common/Matrix.h"
+#include "ClientHelper.h"
 
 int main()
 {		
@@ -16,6 +15,14 @@ int main()
 		printf("Client side connection failed: %ld\n", WSAGetLastError());
 		return 1; 
 	}
+
+	
+	DWORD serverReceiverFunID;
+	HANDLE serverReceiverHandle;
+
+	paramsServerRecv paramsServer;
+	paramsServer.connectSocket = &connectSocket;
+	serverReceiverHandle = CreateThread(NULL, 0, &ServerReceiver, &paramsServer, 0, &serverReceiverFunID);
 	
 	int answer = 0;
 	int order = 0;
@@ -70,7 +77,8 @@ int main()
 			if (!SendMatrix(connectSocket, mRandomly, sizeof(mRandomly)))
 			{
 				break;
-			}			
+			}		
+
 		}		
 		else if (answer == 3)
 		{

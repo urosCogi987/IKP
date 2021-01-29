@@ -1,5 +1,1 @@
-﻿  ServerSource.cpp
-c:\users\korisnik\postman\desktop\jbtikp\ikp\server\serversource.cpp(11): warning C4101: 'iResult': unreferenced local variable
-c:\users\korisnik\postman\desktop\jbtikp\ikp\server\serversource.cpp(12): warning C4101: 'dataBuffer': unreferenced local variable
-c:\users\korisnik\postman\desktop\jbtikp\ikp\server\serversource.cpp(46): warning C4101: 'clientSenderHandle': unreferenced local variable
-  Server.vcxproj -> C:\Users\Korisnik\Postman\Desktop\jbtIKP\IKP\Debug\Server.exe
+﻿  Server.vcxproj -> C:\Users\Korisnik\Postman\Desktop\jbtIKP\IKP\Debug\Server.exe

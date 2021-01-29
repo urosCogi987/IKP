@@ -10,5 +10,9 @@ void AddOnEnd(listStruct* pList, clientWorkerStruct* clientWorker);
 
 void AddHead(listStruct* pList, node_t *node);
 
+void UpdateNode(listStruct* pList, clientWorkerStruct* clientWorker);
+
 clientWorkerStruct* RemoveByID(listStruct* pList, int clientId);
+
+
 

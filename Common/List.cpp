@@ -25,7 +25,9 @@ void PrintList(listStruct* pList)
 		{
 			printf("\tWorker Id: %d\n", temp->clientWorker->idWorkers[i]);
 		}
-
+		printf("Counter: %d\n", temp->clientWorker->counter);
+		printf("Determinant: %d\n", temp->clientWorker->det);
+		printf("Is ready: %s\n", temp->clientWorker->ready ? "true" : "false");
 		printf("Next node: %d\n", temp->next);
 		temp = temp->next;
 	}
@@ -84,6 +86,23 @@ void AddHead(listStruct* pList, node_t *node)
 	EnterCriticalSection(&pList->critSec);
 	node->next = pList->head;
 	pList->head = node;
+	LeaveCriticalSection(&pList->critSec);
+}
+
+// el dobro, tj kako ide ?
+void UpdateNode(listStruct* pList, clientWorkerStruct* clientWorker)
+{
+	clientWorkerStruct* updateNode = NULL;
+
+	EnterCriticalSection(&pList->critSec);
+
+	for (node_t** current = &pList->head; *current; current = &(*current)->next) {
+		if ((*current)->clientWorker->idClient == clientWorker->idClient) {
+			updateNode = (*current)->clientWorker;
+			node* next = (*current)->next;
+		}
+	}
+
 	LeaveCriticalSection(&pList->critSec);
 }
 
