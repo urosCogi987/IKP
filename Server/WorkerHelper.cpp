@@ -2,15 +2,6 @@
 
 #include <process.h>
 
-DWORD WINAPI WorkerCaller(LPVOID lpParam)
-{
-	LPCWSTR modee = L"open";	
-		
-	ShellExecute(NULL, "open", "..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);
-	
-	
-	return 0;
-}
 
 // Listening on client connectinos and messages
 DWORD WINAPI ClientReceiver(LPVOID lpParam)
@@ -19,6 +10,7 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 	SOCKET* arrayOfClientSocks = params->clientSockets;
 
 	listStruct* clientWorkerList = params->clientWorkerList;
+	bool* shutDown = params->shutDown;
 
 	Matrix* matrica;
 
@@ -49,7 +41,7 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 
 	Sleep(1);
 
-	while (true)
+	while (!*shutDown)
 	{
 		// initialize socket set
 		FD_ZERO(&readfds);
@@ -201,14 +193,15 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 		}
 	}
 
-
-	//closesocket(listenSocket);
+	
+	
 	for (int i = 0; i < lastIndex; i++)
 	{
-		//closesocket(arrayOfClientSocks[i]);
+		closesocket(arrayOfClientSocks[i]);
 	}
 
-	//WSACleanup();
+	
+	
 	return 0;
 }
 
@@ -219,6 +212,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 	SOCKET* arrayOfWorkerSocks = params->workerSockets;
 	
 	listStruct* clientWorkerList = params->clientWorkerList;
+	bool* shutDown = params->shutDown;
 
 	char dataBuffer[BUFFER_SIZE];			// Buffer used for storing incoming data
 	SOCKET listenSocket2 = INVALID_SOCKET;	// Socket used for listening for new clients 	
@@ -245,8 +239,9 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 	
 	Sleep(1);
 
-	while (true)
+	while (!*shutDown)
 	{
+
 		// initialize socket set
 		FD_ZERO(&readfds);
 		FD_ZERO(&writefds);
@@ -273,9 +268,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 		int selectResult = select(0, &readfds, NULL, NULL, &timeVal);
 		if (selectResult == SOCKET_ERROR)
 		{
-			printf("Select failed with error: %d\n", WSAGetLastError());
-			//closesocket(listenSocket2);
-			//WSACleanup();
+			printf("Select failed with error: %d\n", WSAGetLastError());			
 			return 1;
 		}
 		else if (selectResult == 0) // timeout expired
@@ -290,9 +283,7 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 
 			// Accept new client connection
 			if (!AcceptSockets(&arrayOfWorkerSocks[lastIndex], &listenSocket2, &clientAddr, &clientAddrSize))
-			{
-				//closesocket(listenSocket2);
-				//WSACleanup();
+			{				
 				printf("Crashed in Recevier thread\n");
 				return 1;
 			}
@@ -302,42 +293,45 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 
 			lastIndex++;
 			AddOnEnd(clientWorkerList, worker);
-			printf("New WORKER request accepted (%d). Worker address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
+			printf("New WORKER request accepted . Worker address: %s : %d\n", inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 		}
 		else										// Client socket (client sending a msg)
 		{
-			// Check if new message is received from connected clients
-			for (int i = 0; i < lastIndex; i++)
-			{
-				// Check if new message is received from client on position "i"
-				if (FD_ISSET(arrayOfWorkerSocks[i], &readfds))
-				{
-					// connection was closed gracefully
-					printf("Connection with client (%d) closed.\n\n", i + 1);
-					//closesocket(arrayOfClientSocks[i]);
-
-					// sort array and clean last place
-					for (int j = i; j < lastIndex - 1; j++)
-					{
-						arrayOfWorkerSocks[j] = arrayOfWorkerSocks[j + 1];
-					}
-					arrayOfWorkerSocks[lastIndex - 1] = 0;
-
-					lastIndex--;
-				}
-
-			}
+			
 
 		}
 				
 	}
+	
+
+	for (int i = 0; i < lastIndex; i++)
+	{
+		closesocket(arrayOfWorkerSocks[i]);
+	}
+
+	
 
 	return 0;
 }
 
-DWORD WINAPI ClientSender(LPVOID lpParam)
-{
+void FreeList(listStruct* list) {
+	char message[] = "Shutdown";
 
+	printf("Waiting for all workers to finish...\n");
+	
+	printf("All workers finished!\n");
 
-	return 0;
+	while (!IsListEmpty(list))
+	{
+
+		clientWorkerStruct* cwStruct = RemoveFirstElement(list);
+
+		if (cwStruct == NULL) {
+			printf("worker is null\n");
+			continue;
+		}		
+
+		free(cwStruct);
+	}
+	printf("All workers destroyed! Continuing shutdown!\n");
 }

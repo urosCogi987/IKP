@@ -81,6 +81,7 @@ typedef struct listStruct {
 typedef struct paramsClientRecv {
 	SOCKET* clientSockets;
 	listStruct* clientWorkerList;
+	bool* shutDown;
 } paramsClientRecv;
 
 
@@ -88,6 +89,7 @@ typedef struct paramsClientRecv {
 typedef struct paramsWorkerRecv {
 	SOCKET* workerSockets;
 	listStruct* clientWorkerList;
+	bool* shutDown;
 } paramsWorkerRecv;
 
 

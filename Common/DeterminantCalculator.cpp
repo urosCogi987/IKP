@@ -8,6 +8,7 @@ int determinant(int** mat, int size, listStruct *workerList)
 	{
 		// Opening new workers
 		LPCWSTR mode = L"open";
+		Sleep(500);
 		ShellExecute(NULL, mode, L"..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);
 
 		while (true) {

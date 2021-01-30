@@ -1,5 +1,5 @@
 ﻿  DeterminantCalculator.cpp
-c:\users\korisnik\postman\desktop\ikpfinal\ikp\common\determinantcalculator.cpp(95): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\common\determinantcalculator.cpp(96): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
   List.cpp
 c:\users\korisnik\postman\desktop\ikpfinal\ikp\common\list.cpp(31): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'node *'
   Matrix.cpp

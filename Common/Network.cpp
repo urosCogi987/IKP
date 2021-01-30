@@ -63,14 +63,9 @@ void shutdownClientConnection(SOCKET* connectSocket)
 	// Check if connection is succesfully shut down.
 	if (iResult == SOCKET_ERROR)
 	{
-		printf("Shutdown failed with error: %d\n", WSAGetLastError());
-		//closesocket(*connectSocket);
-		//WSACleanup();
+		printf("Shutdown failed with error: %d\n", WSAGetLastError());		
 		return;
-	}
-
-	//closesocket(*connectSocket);
-	//WSACleanup();
+	}	
 }
 
 // Send Matrix
@@ -91,9 +86,7 @@ bool SendMatrix(SOCKET socket, Matrix m, int length)
 
 	if (iResult == SOCKET_ERROR)
 	{
-		printf("Select failed with error: %d\n", WSAGetLastError());
-		//closesocket(socket);
-		//WSACleanup();
+		printf("Select failed with error: %d\n", WSAGetLastError());		
 		return false;
 	}
 	else if (iResult == 0) {
@@ -104,9 +97,7 @@ bool SendMatrix(SOCKET socket, Matrix m, int length)
 		iResult = send(socket, (char*)&m, (int)sizeof(Matrix), 0);
 		if (iResult == SOCKET_ERROR)
 		{
-			printf("send failed with error: %d\n", WSAGetLastError());
-			//closesocket(socket);
-			//WSACleanup();
+			printf("send failed with error: %d\n", WSAGetLastError());			
 			return false;
 		}			
 	}	
@@ -139,8 +130,8 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	iResult = getaddrinfo(NULL, sPort, &hints, &resultingAddress);
 	if (iResult != 0)
 	{
-		printf("getaddrinfo failed with error: %d\n", iResult);
-		WSACleanup();
+		printf("getaddrinfo failed with error: %d\n", iResult);		
+		free(sPort);
 		return false;
 	}
 
@@ -153,8 +144,8 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	if (*listenSocket == INVALID_SOCKET)
 	{
 		printf("socket failed with error: %ld\n", WSAGetLastError());
-		freeaddrinfo(resultingAddress);
-		//WSACleanup();
+		freeaddrinfo(resultingAddress);		
+		free(sPort);
 		return 1;
 	}
 
@@ -166,8 +157,7 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	{
 		printf("bind failed with error: %d\n", WSAGetLastError());
 		freeaddrinfo(resultingAddress);
-		//closesocket(*listenSocket);
-		//WSACleanup();
+		free(sPort);
 		return 1;
 	}
 
@@ -189,8 +179,7 @@ bool InitializeAndListen(SOCKET* listenSocket, unsigned short port)
 	if (iResult == SOCKET_ERROR)
 	{
 		printf("listen failed with error: %d\n", WSAGetLastError());
-		//closesocket(*listenSocket);
-		//WSACleanup();
+		free(sPort);
 		return 1;
 	}
 
@@ -229,9 +218,7 @@ bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clie
 				*clientSocket = accept(*listenSocket, (struct sockaddr *)clientAddr, clientAddrSize);
 
 				if (*clientSocket == INVALID_SOCKET) {
-					printf("accept failed with error: %d\n", WSAGetLastError());
-					//closesocket(*listenSocket);
-					//WSACleanup();
+					printf("accept failed with error: %d\n", WSAGetLastError());					
 					return false;
 
 				}
@@ -247,7 +234,7 @@ bool AcceptSockets(SOCKET* clientSocket, SOCKET* listenSocket, sockaddr_in *clie
 			}
 		}
 	} while (1);
-	
+		
 
 	return true;
 }

@@ -36,7 +36,14 @@ int main()
 		if (answer == 1) 
 		{
 			printf("Enter the order of the matrix: \n");
+			
+			
 			scanf_s("%d", &order);
+
+				
+				
+			
+			
 
 			Matrix mByHand;
 			mByHand = EnterMatrixByHand(order);			

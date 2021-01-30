@@ -7,9 +7,7 @@ bool ConnectToServer()
 	char address[10] = "127.0.0.1";
 	//unsigned short port = 27017;
 	char recvBuff[BUFFER_SIZE];
-	int iResult;
-	int sendBack;
-	int lastIndex;
+	int iResult;		
 	
 	if (!InitializeAndConnect(address, &connectSocket, SERVER_PORT_DVA)) 
 	{		
@@ -116,6 +114,8 @@ bool ConnectToServer()
 		}
 	}
 	//iResult = recv();
+	shutdownClientConnection(&connectSocket);
+
 
 	return true;
 }
