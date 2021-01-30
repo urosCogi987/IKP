@@ -128,3 +128,40 @@ clientWorkerStruct* RemoveByID(listStruct* pList, int clientId)
 
 	return returnVal;
 }
+
+
+bool IsListEmpty(listStruct* pList)
+{
+	EnterCriticalSection(&pList->critSec);
+	if (pList->head == NULL) {
+		LeaveCriticalSection(&pList->critSec);
+		return true;
+	}
+
+	LeaveCriticalSection(&pList->critSec);
+	return false;
+}
+
+
+clientWorkerStruct* RemoveFirstElement(listStruct* pList)
+{
+	clientWorkerStruct* networkData = NULL;
+
+	node_t* next_node = NULL;
+
+	EnterCriticalSection(&pList->critSec);
+
+	if (pList->head == NULL) {
+		LeaveCriticalSection(&pList->critSec);
+		return networkData;
+	}
+
+	next_node = pList->head->next;
+	networkData = pList->head->clientWorker;
+	free(pList->head);
+	pList->head = next_node;
+
+	LeaveCriticalSection(&pList->critSec);
+
+	return networkData;
+}

@@ -18,6 +18,7 @@
 #include <cstdbool>
 #include <limits.h> 
 #include <winapifamily.h>
+#include <math.h>
 
 
 //#define BUFFER_SIZE 256

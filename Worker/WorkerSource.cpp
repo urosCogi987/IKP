@@ -9,8 +9,8 @@ int main()
 	}
 
 
-	getchar();
-	//Sleep(2000);
+	//getchar();
+	Sleep(2000);
 
 	return 0;
 }

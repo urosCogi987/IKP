@@ -151,11 +151,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="DeterminantCalculator.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Network.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DeterminantCalculator.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Network.cpp" />

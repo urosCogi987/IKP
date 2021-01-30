@@ -1,4 +1,5 @@
 #include "../Common/Network.h"
+#include "../Common/DeterminantCalculator.h"
 
 
 DWORD WINAPI ClientReceiver(LPVOID lpParam);

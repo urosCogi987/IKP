@@ -43,14 +43,45 @@ bool ConnectToServer()
 		}
 		else if (FD_ISSET(connectSocket, &readfds))
 		{
-			iResult = recv(connectSocket, recvBuff, 4, 0);
+			iResult = recv(connectSocket, recvBuff, sizeof(recvBuff), 0);
 			if (iResult > 0)
 			{
-				printf("%d", *(int*)recvBuff);
+				int retVal = 0;
 
-				lastIndex = *(int*)recvBuff;
+				Matrix m = *(Matrix *)recvBuff;
 
-				iResult = send(connectSocket, (char*)&lastIndex, sizeof(lastIndex), 0);	// (char*)&lastIndex
+				if (m.order == 1) {
+					retVal = m.data[0];
+				}
+				else if(m.order == 2)
+				{
+					int k = 0;
+					int DIM = m.order;
+					
+					int** mat = (int**)calloc(DIM, sizeof(int*));
+					for (k = 0; k < DIM; k++)
+						mat[k] = (int*)calloc(DIM, sizeof(int));
+
+
+					
+					k = 0;
+					int x, y;
+					for (x = 0; x < DIM; x++)
+					{
+						for (y = 0; y < DIM; y++)
+						{
+							mat[x][y] = m.data[k];
+							k++;
+						}
+					}
+					
+					
+
+					retVal = ((mat[0][0] * mat[1][1]) - (mat[1][0] * mat[0][1]));
+				}
+
+
+				iResult = send(connectSocket, (char*)&retVal, sizeof(int), 0);	// (char*)&lastIndex
 				if (iResult == SOCKET_ERROR)
 				{
 					printf("send failed with error: %d\n", WSAGetLastError());
@@ -59,7 +90,9 @@ bool ConnectToServer()
 					return false;
 				}
 
-				printf("Primljena poruka vracena nazad\n");						break;
+				printf("Work done!\n");		
+				break;
+
 			}
 			else if (iResult == SOCKET_ERROR) 
 			{

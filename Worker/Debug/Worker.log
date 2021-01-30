@@ -1,5 +1,6 @@
 ﻿  WorkerHelp.cpp
-c:\users\korisnik\postman\desktop\jbtikp\ikp\worker\workerhelp.cpp(11): warning C4101: 'sendBack': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\worker\workerhelp.cpp(11): warning C4101: 'sendBack': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\worker\workerhelp.cpp(12): warning C4101: 'lastIndex': unreferenced local variable
   WorkerSource.cpp
   Generating Code...
-  Worker.vcxproj -> C:\Users\Korisnik\Postman\Desktop\jbtIKP\IKP\Debug\Worker.exe
+  Worker.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKPFinal\IKP\Debug\Worker.exe

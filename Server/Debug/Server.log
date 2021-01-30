@@ -1,1 +1,14 @@
-﻿  Server.vcxproj -> C:\Users\Korisnik\Postman\Desktop\jbtIKP\IKP\Debug\Server.exe
+﻿  ServerSource.cpp
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\serversource.cpp(11): warning C4101: 'iResult': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\serversource.cpp(12): warning C4101: 'dataBuffer': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\serversource.cpp(46): warning C4101: 'clientSenderHandle': unreferenced local variable
+  WorkerHelper.cpp
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(35): warning C4101: 'handle': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(34): warning C4101: 'funId': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(30): warning C4101: 'numOfThreads': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(225): warning C4101: 'iResult': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(223): warning C4101: 'dataBuffer': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(230): warning C4101: 'msgForClient': unreferenced local variable
+c:\users\korisnik\postman\desktop\ikpfinal\ikp\server\workerhelper.cpp(228): warning C4101: 'threadId': unreferenced local variable
+  Generating Code...
+  Server.vcxproj -> C:\Users\Korisnik\Postman\Desktop\IKPFinal\IKP\Debug\Server.exe

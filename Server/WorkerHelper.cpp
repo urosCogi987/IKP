@@ -123,48 +123,39 @@ DWORD WINAPI ClientReceiver(LPVOID lpParam)
 						printf("Message received from client (%d):\n", i + 1);
 
 						matrica = (Matrix*)dataBuffer;
-
-						for (int i = 0; i < matrica->order * matrica->order; i++)
-						{
-							if ((i != 0) && (i % matrica->order == 0))
-								printf("\n");
-							printf("%d ", matrica->data[i]);
-						}												
-
-						/* OVDE TREBA NEKA F-JA, ZA RACUNANJE MINORA, */
-						if ((matrica->order == 1) || (matrica->order == 2) || (matrica->order == 3))
-							numOfThreads = 1;
-						else if (matrica->order == 4)
-							numOfThreads = 4;
-						else if (matrica->order == 5)
-							numOfThreads = 5;
-
-						// Opening new workers
-						LPCWSTR modee = L"open";						
-
-						for (int i = 0; i < numOfThreads; i++)
-						{
-							//callerHandle = CreateThread(NULL, 0, &WorkerCaller, NULL, 0, &callerID);
-							ShellExecute(NULL, "open", "..\\Debug\\Worker.exe", NULL, NULL, SW_SHOWDEFAULT);							
-						}
-
-						// DODAVANJE KLIJENTA U LISTU						
-						clientWorkerStruct* cwStr = (clientWorkerStruct *)malloc(sizeof(clientWorkerStruct));
-						cwStr->idClient = i;
-						cwStr->numOfWorkers = numOfThreads;
-						cwStr->clientSocket = arrayOfClientSocks[i];
-						cwStr->det = 0;
-						cwStr->counter = 0;
-						cwStr->ready = false;
-						cwStr->clientSocket = arrayOfClientSocks[i];			// dal je potrebno uopste?
-						for (int j = 0; j < numOfThreads; j++)
-						{
-							cwStr->idWorkers[j] = workerCounter + j;							
-						}
-
-						workerCounter += numOfThreads;
+						int k = 0;						
 						
-						AddOnEnd(clientWorkerList, cwStr);
+						int DIM = matrica->order;
+
+						int** mat = (int**)calloc(DIM, sizeof(int*));
+						for (k = 0; k < DIM; k++)
+							mat[k] = (int*)calloc(DIM, sizeof(int));
+
+						
+						k = 0;
+						int x, y;
+						for (x = 0; x < DIM; x++)
+						{
+							for (y = 0; y < DIM; y++)
+							{
+								mat[x][y] = matrica->data[k];
+								k++;
+							}
+						}
+
+						stampa_matrice(mat, DIM);
+
+						int retVal = determinant(mat, DIM, clientWorkerList);
+
+						iResult = send(arrayOfClientSocks[i], (char*)&retVal, sizeof(int), 0);	// (char*)&lastIndex
+						if (iResult == SOCKET_ERROR)
+						{
+							printf("send failed with error: %d\n", WSAGetLastError());
+							//closesocket(arrayOfWorkerSocks[i]);
+							//WSACleanup();
+							return false;
+						}
+
 						// DODAVANJE KLIJENTA U LISTU
 
 						// Client thread
@@ -306,113 +297,40 @@ DWORD WINAPI WorkerReceiver(LPVOID lpParam)
 				return 1;
 			}
 			
-			
-			iResult = send(arrayOfWorkerSocks[lastIndex], (char*)&lastIndex, sizeof(lastIndex),0);	// (char*)&lastIndex
-			if (iResult == SOCKET_ERROR)
-			{
-				printf("send failed with error: %d\n", WSAGetLastError());
-				//closesocket(arrayOfWorkerSocks[i]);
-				//WSACleanup();
-				return false;
-			}
-			printf("Poruka jebeno poslata\n");
-									
+			clientWorkerStruct* worker = (clientWorkerStruct *)malloc(sizeof(clientWorkerStruct));
+			worker->clientSocket = arrayOfWorkerSocks[lastIndex];
 
 			lastIndex++;
+			AddOnEnd(clientWorkerList, worker);
 			printf("New WORKER request accepted (%d). Worker address: %s : %d\n", lastIndex, inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 		}
-		else 
-		{	/* PRIMANJE PORUKA OD WORKERA	*/
+		else										// Client socket (client sending a msg)
+		{
 			// Check if new message is received from connected clients
 			for (int i = 0; i < lastIndex; i++)
 			{
 				// Check if new message is received from client on position "i"
 				if (FD_ISSET(arrayOfWorkerSocks[i], &readfds))
 				{
-					iResult = recv(arrayOfWorkerSocks[i], dataBuffer, 4, 0);
-					if (iResult > 0)
+					// connection was closed gracefully
+					printf("Connection with client (%d) closed.\n\n", i + 1);
+					//closesocket(arrayOfClientSocks[i]);
+
+					// sort array and clean last place
+					for (int j = i; j < lastIndex - 1; j++)
 					{
-						printf("\n\nVRACENO NAZAD BRE SIPU RACKU BOGA TI MEBJE:\n\n%d\n\n", *(int*)dataBuffer);
-
-						threadId = *(int*)dataBuffer;
-						/* NE ZNAM DAL ISPOD MENJA STVARI U LISTI IL SAMO LOKALNO, LUGI-SAAAAN */
-
-						for (node_t** current = &clientWorkerList->head; *current; current = &(*current)->next)	// ako u listi postoji thread sa ovim ID
-						{
-							for (int j = 0; j < (*current)->clientWorker->numOfWorkers; j++)	// za svaki worker
-							{
-								if ((*current)->clientWorker->idWorkers[j] == threadId)	// ako je njegov ID jednak ID koji je poslao deo resenja
-								{
-									// NAPRAVI UPDATE NODE
-									(*current)->clientWorker->det += *(int*)dataBuffer;
-									(*current)->clientWorker->counter++;
-
-									if ((*current)->clientWorker->counter == (*current)->clientWorker->numOfWorkers)	// Ako su svi threadovi vratili vred
-									{
-										(*current)->clientWorker->ready = true;
-									}
-									//msgForClient = *(int*)dataBuffer;														
-								}
-							}							
-						}
-
-						PrintList(clientWorkerList);
-
-
-						for (node_t** current = &clientWorkerList->head; *current; current = &(*current)->next)
-						{
-							if ((*current)->clientWorker->ready == true)
-							{
-								iResult = send((*current)->clientWorker->clientSocket, (char*)&threadId, sizeof(threadId), 0);
-								if (iResult == SOCKET_ERROR)
-								{
-									printf("send failed with error: %d\n", WSAGetLastError());
-									//closesocket(arrayOfWorkerSocks[i]);
-									//WSACleanup();
-									return false;
-								}
-
-								printf("Primljena poruka vracena Klijentu.\n");
-							}							
-						}
-
-						
+						arrayOfWorkerSocks[j] = arrayOfWorkerSocks[j + 1];
 					}
-					else if (iResult == 0)
-					{
-						// connection was closed gracefully
-						printf("Connection with client (%d) closed.\n\n", i + 1);
-						//closesocket(arrayOfClientSocks[i]);
+					arrayOfWorkerSocks[lastIndex - 1] = 0;
 
-						// sort array and clean last place
-						for (int j = i; j < lastIndex - 1; j++)
-						{
-							arrayOfWorkerSocks[j] = arrayOfWorkerSocks[j + 1];
-						}
-						arrayOfWorkerSocks[lastIndex - 1] = 0;
-
-						lastIndex--;
-					}
-					else
-					{
-						// there was an error during recv
-						printf("WORKER recv failed with error: %d\n", WSAGetLastError());
-						//closesocket(arrayOfClientSocks[i]);
-
-						// sort array and clean last place
-						for (int j = i; j < lastIndex - 1; j++)
-						{
-							arrayOfWorkerSocks[j] = arrayOfWorkerSocks[j + 1];
-						}
-						arrayOfWorkerSocks[lastIndex - 1] = 0;
-
-						lastIndex--;
-					}
+					lastIndex--;
 				}
-			}
-		}
-	}
 
+			}
+
+		}
+				
+	}
 
 	return 0;
 }

@@ -30,3 +30,7 @@ bool AcceptWorkerSockets(SOCKET* clientSocket, SOCKET* listenSocket);
 
 
 void ResultFromServer(SOCKET socket);
+
+bool SendMatrixToWorker(SOCKET socket, int** matrix, int length, int size);
+
+int ReceiveValueFromWorker(SOCKET socket);

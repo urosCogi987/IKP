@@ -76,43 +76,40 @@ void shutdownClientConnection(SOCKET* connectSocket)
 // Send Matrix
 bool SendMatrix(SOCKET socket, Matrix m, int length)
 {
-	int iResult, bytesSent = 0;
+	int iResult;
 
 	timeval timeVal;
 	timeVal.tv_sec = 1;
 	timeVal.tv_usec = 0;
 
 	fd_set writeFds;
-	do {
-		FD_ZERO(&writeFds);
-		FD_SET(socket, &writeFds);
+	
+	FD_ZERO(&writeFds);
+	FD_SET(socket, &writeFds);
 
-		iResult = select(0, NULL, &writeFds, NULL, &timeVal);
+	iResult = select(0, NULL, &writeFds, NULL, &timeVal);
 
+	if (iResult == SOCKET_ERROR)
+	{
+		printf("Select failed with error: %d\n", WSAGetLastError());
+		//closesocket(socket);
+		//WSACleanup();
+		return false;
+	}
+	else if (iResult == 0) {
+		printf("time out expired.\n");
+	}
+	else if (FD_ISSET(socket, &writeFds))
+	{			
+		iResult = send(socket, (char*)&m, (int)sizeof(Matrix), 0);
 		if (iResult == SOCKET_ERROR)
 		{
-			printf("Select failed with error: %d\n", WSAGetLastError());
+			printf("send failed with error: %d\n", WSAGetLastError());
 			//closesocket(socket);
 			//WSACleanup();
 			return false;
-		}
-		else if (iResult == 0) {
-			printf("time out expired.\n");
-		}
-		else if (FD_ISSET(socket, &writeFds))
-		{			
-			iResult = send(socket, (char*)&m, (int)sizeof(Matrix), 0);
-			if (iResult == SOCKET_ERROR)
-			{
-				printf("send failed with error: %d\n", WSAGetLastError());
-				//closesocket(socket);
-				//WSACleanup();
-				return false;
-			}
-
-			bytesSent += iResult;
-		}
-	} while (bytesSent < length);	
+		}			
+	}	
 
 	return true;
 }
@@ -377,3 +374,115 @@ void ResultFromServer(SOCKET socket)
 	} while (true);
 }
 
+bool SendMatrixToWorker(SOCKET socket, int** matrix, int length, int size)
+{
+	int iResult;
+
+	timeval timeVal;
+	timeVal.tv_sec = 1;
+	timeVal.tv_usec = 0;
+
+	fd_set writeFds;
+
+	FD_ZERO(&writeFds);
+	FD_SET(socket, &writeFds);
+
+	iResult = select(0, NULL, &writeFds, NULL, &timeVal);
+
+	if (iResult == SOCKET_ERROR)
+	{
+		printf("Select failed with error: %d\n", WSAGetLastError());
+		//closesocket(socket);
+		//WSACleanup();
+		return false;
+	}
+	else if (iResult == 0) {
+		printf("time out expired.\n");
+	}
+	else if (FD_ISSET(socket, &writeFds))
+	{
+
+		iResult = send(socket, (char*)matrix, (int)sizeof(matrix), 0);
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("send failed with error: %d\n", WSAGetLastError());
+			//closesocket(socket);
+			//WSACleanup();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+
+
+
+int ReceiveValueFromWorker(SOCKET socket)
+{
+
+	int iResult;
+	int bytesReceived = 0;
+	fd_set readfds;
+	bool shouldWork = true;
+
+	char buffer[BUFFER_SIZE];
+
+	timeval timeVal;
+	timeVal.tv_sec = 0;
+	timeVal.tv_usec = 50;
+
+	do {
+
+
+		FD_ZERO(&readfds);
+		FD_SET(socket, &readfds);
+
+
+		iResult = select(0, &readfds, NULL, NULL, &timeVal);
+
+		if (iResult == SOCKET_ERROR)
+		{
+			printf("ReceiveWhenWorkDone: Select failed with error: %d\n", WSAGetLastError());
+			closesocket(socket);
+
+			return -1;
+		}
+		else if (iResult == 0) {
+
+		}
+		else if (FD_ISSET(socket, &readfds))
+		{
+			iResult = recv(socket, buffer, 4, 0);
+			if (iResult > 0) {
+
+				printf("Returned value of determinant: %d\n", *(int *)buffer);
+				return *(int *)buffer;
+					
+			}
+			else if (iResult == 0) {
+
+				printf("ReceiveWhenWorkDone: Connection closed.\n");
+				closesocket(socket);
+
+				return 0;
+			}
+			else
+			{
+				// WSAWouldBlock error 
+				if (WSAGetLastError() == 10035) {
+					continue;
+				}
+
+				printf("ReceiveWhenWorkDone: recv failed with error: %d\n", WSAGetLastError());
+				closesocket(socket);
+
+				return -1;
+			}
+		}
+		//clear
+		FD_CLR(socket, &readfds);
+
+	} while (true);
+
+}

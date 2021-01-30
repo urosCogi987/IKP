@@ -14,5 +14,6 @@ void UpdateNode(listStruct* pList, clientWorkerStruct* clientWorker);
 
 clientWorkerStruct* RemoveByID(listStruct* pList, int clientId);
 
+bool IsListEmpty(listStruct* pList);
 
-
+clientWorkerStruct* RemoveFirstElement(listStruct* pList);
